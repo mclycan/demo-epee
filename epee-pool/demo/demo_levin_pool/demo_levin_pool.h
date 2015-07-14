@@ -61,6 +61,9 @@ namespace demo
 	  HANDLE_INVOKE_T2(COMMAND_EXAMPLE_3, &demo_levin_server::handle_command_3)
       HANDLE_NOTIFY_T2(COMMAND_EXAMPLE_1, &demo_levin_server::handle_notify_1)
       HANDLE_NOTIFY_T2(COMMAND_EXAMPLE_2, &demo_levin_server::handle_notify_2)
+	  HANDLE_INVOKE_T2(COMMAND_WITH_ID, &demo_levin_server::handle_ID)
+	  HANDLE_INVOKE_T2(COMMAND_WITH_Request, &demo_levin_server::handle_Request)
+	  HANDLE_INVOKE_T2(COMMAND_WITH_Result, &demo_levin_server::handle_Result)
     END_INVOKE_MAP2()
 
     //----------------- commands handlers ----------------------------------------------
@@ -69,6 +72,10 @@ namespace demo
 	int handle_command_3(int command, COMMAND_EXAMPLE_3::request& arg, COMMAND_EXAMPLE_3::response& rsp, const net_utils::connection_context_base& context);
     int handle_notify_1(int command, COMMAND_EXAMPLE_1::request& arg, const net_utils::connection_context_base& context);
     int handle_notify_2(int command, COMMAND_EXAMPLE_2::request& arg, const net_utils::connection_context_base& context);
+	int handle_ID(int command, COMMAND_WITH_ID::request& arg, COMMAND_WITH_ID::response& rsp, const net_utils::connection_context_base& context);
+	int handle_Request(int command, COMMAND_WITH_Request::request& arg, COMMAND_WITH_Request::response& rsp, const net_utils::connection_context_base& context);
+	int handle_Result(int command, COMMAND_WITH_Result::request& arg, COMMAND_WITH_Result::response& rsp, const net_utils::connection_context_base& context);
+ 
     //----------------------------------------------------------------------------------
     net_utils::boosted_levin_async_server m_net_server;
     std::atomic<bool> m_stop;

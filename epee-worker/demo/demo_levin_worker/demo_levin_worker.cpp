@@ -32,12 +32,40 @@
 
 
 template<class t_request>
-// client ;
-bool communicate(net_utils::boosted_levin_async_server& transport, int id, t_request& req, const std::string& ip, const std::string& port, bool use_async)
+bool communicate_1(net_utils::boosted_levin_async_server& transport, int id, t_request& req, const std::string& ip, const std::string& port)
 {
-  if(use_async) // 异步处理
-  {
-    //IMPORTANT: do not pass local parameters from stack by reference! connect_async returns immediately, and callback will call in any thread later
+    net_utils::connection_context_base ctx = AUTO_VAL_INIT(ctx);
+    bool r = transport.connect(ip, port, 10000, ctx);
+    CHECK_AND_ASSERT_MES(r, false, "failed to connect to " << ip << ":" << port);
+    demo::COMMAND_WITH_ID::response rsp = AUTO_VAL_INIT(rsp);
+    LOG_PRINT_RED("Request to connect to the pool. ", LOG_LEVEL_0);
+    r = epee::net_utils::invoke_remote_command2(ctx.m_connection_id, id, req, rsp, transport.get_config_object());
+    CHECK_AND_ASSERT_MES(r, false, "failed to invoke levin request");
+    CHECK_AND_ASSERT_MES(rsp.ID_success, false, "wrong response");
+    transport.get_config_object().close(ctx.m_connection_id);
+    LOG_PRINT_RED("connection is ok", LOG_LEVEL_0);
+  return true;
+}
+
+template<class t_request>
+bool communicate_2(net_utils::boosted_levin_async_server& transport, int id, t_request& req, const std::string& ip, const std::string& port)
+{
+    net_utils::connection_context_base ctx = AUTO_VAL_INIT(ctx);
+    bool r = transport.connect(ip, port, 10000, ctx);
+    CHECK_AND_ASSERT_MES(r, false, "failed to connect to " << ip << ":" << port);
+    demo::COMMAND_WITH_Result::response rsp = AUTO_VAL_INIT(rsp);
+    LOG_PRINT_RED("Here is result!", LOG_LEVEL_0);
+    r = epee::net_utils::invoke_remote_command2(ctx.m_connection_id, id, req, rsp, transport.get_config_object());
+    CHECK_AND_ASSERT_MES(r, false, "failed to invoke levin request");
+    CHECK_AND_ASSERT_MES(rsp.R_success, false, "wrong response");
+    transport.get_config_object().close(ctx.m_connection_id);
+    LOG_PRINT_RED("Result has been received", LOG_LEVEL_0);
+  return true;
+}
+
+template<class t_request>
+bool communicate_async(net_utils::boosted_levin_async_server& transport, int id, t_request& req, const std::string& ip, const std::string& port)
+{
     transport.connect_async(ip, port, 10000, [&transport, id, req, ip, port](net_utils::connection_context_base& ctx, const boost::system::error_code& ec_)
     {
       if(!!ec_)
@@ -45,42 +73,24 @@ bool communicate(net_utils::boosted_levin_async_server& transport, int id, t_req
         LOG_ERROR("Failed to connect to " << ip << ":" << port);
       }else
       {//connected ok!
-        epee::net_utils::async_invoke_remote_command2<demo::COMMAND_EXAMPLE_1::response>(ctx.m_connection_id, id, req, transport.get_config_object(), [&transport, ip, port](int res_code, demo::COMMAND_EXAMPLE_1::response& rsp, net_utils::connection_context_base& ctx)
+        epee::net_utils::async_invoke_remote_command2<demo::COMMAND_WITH_Request::response>(ctx.m_connection_id, id, req, transport.get_config_object(), [&transport, ip, port](int res_code, demo::COMMAND_WITH_Request::response& rsp, net_utils::connection_context_base& ctx)
         {
           if(res_code < 0)
           {
             LOG_ERROR("Failed to invoke to " << ip << ":" << port);
           }else
           {//invoked ok
-            CHECK_AND_ASSERT_MES(rsp.m_success, false, "wrong response");
-            CHECK_AND_ASSERT_MES(rsp.subs.size()==1, false, "wrong response");
-            CHECK_AND_ASSERT_MES(rsp.subs.front() == demo::get_test_data(), false, "wrong response");
-            LOG_PRINT_GREEN("Client COMMAND_EXAMPLE_1 async invoked ok", LOG_LEVEL_0);
+            CHECK_AND_ASSERT_MES(rsp.charset == "hello", false, "wrong response");
+            LOG_PRINT_GREEN("work  is coming", LOG_LEVEL_0);
           }
           transport.get_config_object().close(ctx.m_connection_id);
           return true;
         });
-        LOG_PRINT_GREEN("Client COMMAND_EXAMPLE_1 async invoke requested", LOG_LEVEL_0);
+        LOG_PRINT_GREEN("send work request", LOG_LEVEL_0);
       }
     });
-  }else  // 同步处理
-  {
-    net_utils::connection_context_base ctx = AUTO_VAL_INIT(ctx);
-    bool r = transport.connect(ip, port, 10000, ctx);
-    CHECK_AND_ASSERT_MES(r, false, "failed to connect to " << ip << ":" << port);
-    demo::COMMAND_EXAMPLE_3::response rsp = AUTO_VAL_INIT(rsp);
-    LOG_PRINT_RED("Client COMMAND_EXAMPLE_3 sync invoke requested", LOG_LEVEL_0);
-    r = epee::net_utils::invoke_remote_command2(ctx.m_connection_id, id, req, rsp, transport.get_config_object());
-    CHECK_AND_ASSERT_MES(r, false, "failed to invoke levin request");
-    CHECK_AND_ASSERT_MES(rsp.m_success, false, "wrong response");
-    //CHECK_AND_ASSERT_MES(rsp.subs.size()==1, false, "wrong response");
-    //CHECK_AND_ASSERT_MES(rsp.subs.front() == demo::get_test_data(), false, "wrong response");
-    transport.get_config_object().close(ctx.m_connection_id);
-    LOG_PRINT_RED("Client COMMAND_EXAMPLE_3 sync invoked ok", LOG_LEVEL_0);
-  }
   return true;
 }
-
 
 int main(int argc, char* argv[])
 {
@@ -113,24 +123,39 @@ int main(int argc, char* argv[])
   }
 
   srv.run();
-
-  size_t c = 1;
+  std::string id = "mclycan";
+  uint16_t num = random(6666);
+  int i;
   while (!srv.is_stop())
   {
-	if(c%2 == 0)
-	{
-		demo::COMMAND_EXAMPLE_1::request req1;
-		req1.sub = demo::get_test_data();
-		bool r = communicate(srv.get_server(), demo::COMMAND_EXAMPLE_1::ID, req1, "127.0.0.1", port, (c%2 == 0));
+		demo::COMMAND_WITH_ID::request req1;
+		req1.ID_data = id;
+		req1.ID_num = num;
+		bool r = communicate_1(srv.get_server(), demo::COMMAND_WITH_ID::ID, req1, "127.0.0.1", port);
 		misc_utils::sleep_no_w(3201);
-	}else
-	{
-		demo::COMMAND_EXAMPLE_3::request req3;
-		req3.mc = demo::get_mc_data();
-		bool r = communicate(srv.get_server(), demo::COMMAND_EXAMPLE_3::ID, req3, "127.0.0.1", port, (c%2 == 0));
-		misc_utils::sleep_no_w(3201);
-	}
-    c++;
+
+	
+		demo::COMMAND_WITH_Request::request req2;
+		req2.ID_data = id;
+		req2.ID_num = num;
+		r = communicate_async(srv.get_server(), demo::COMMAND_WITH_Request::ID, req2, "127.0.0.1", port);
+
+		i = 0;
+		misc_utils::sleep_no_w(15201);
+		i = 1;
+		//do some work here;
+
+		if(i);
+		{
+			demo::COMMAND_WITH_Result::request req3;
+			req3.ID_data = id;
+			req3.ID_num = num;
+			req3.ID_task = 1010;
+			req3.passwd = "hello world!";
+			r = communicate_2(srv.get_server(), demo::COMMAND_WITH_Result::ID, req3, "127.0.0.1", port);
+			misc_utils::sleep_no_w(3201);
+		}
+
   }
   bool r = srv.wait_stop();
   CHECK_AND_ASSERT_MES(r, 1, "failed to wait server stop");
@@ -188,10 +213,7 @@ namespace demo
 
   int demo_levin_server::handle_command_1(int command, COMMAND_EXAMPLE_1::request& arg, COMMAND_EXAMPLE_1::response& rsp, const net_utils::connection_context_base& context)
   {
-    /*CHECK_AND_ASSERT_MES(arg.sub == demo::get_test_data(), false, "wrong request");
-    rsp.m_success = true;
-    rsp.subs.push_back(arg.sub);
-    LOG_PRINT_BLUE("Server COMMAND_EXAMPLE_1 ok", LOG_LEVEL_0);*/
+    
     return 1;
   }
 

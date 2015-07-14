@@ -132,9 +132,6 @@ int main(int argc, char* argv[])
   CATCH_ENTRY_L0("main", 1);
 }
 
-/************************************************************************/
-/*                                                                      */
-/************************************************************************/
 
 char* strrev3(const char* str)
 {
@@ -237,6 +234,35 @@ namespace demo
   }
   int demo_levin_server::handle_notify_2(int command, COMMAND_EXAMPLE_2::request& arg, const net_utils::connection_context_base& context)
   {
+    return 1;
+  }
+
+  int demo_levin_server::handle_ID(int command, COMMAND_WITH_ID::request& arg, COMMAND_WITH_ID::response& rsp, const net_utils::connection_context_base& context)
+  {
+	LOG_PRINT_RED("worker " << arg.ID_data << " is connected, ID is " << arg.ID_num << " .", LOG_LEVEL_0);
+    rsp.ID_success = true;
+    LOG_PRINT_YELLOW("work connected ok", LOG_LEVEL_0);
+    return 1;
+  }
+
+	int demo_levin_server::handle_Request(int command, COMMAND_WITH_Request::request& arg, COMMAND_WITH_Request::response& rsp, const net_utils::connection_context_base& context)
+  {
+	LOG_PRINT_RED("worker " << arg.ID_data << " is request for job! ", LOG_LEVEL_0);
+	LOG_PRINT_BLUE("do some math here", LOG_LEVEL_0);
+	misc_utils::sleep_no_w(4401);
+    rsp.charset = "hello";
+	rsp.enc_master = "b88969ba098c9fd";
+	rsp.enc_secret = "b88969ba098c9fd";
+	rsp.salt = "0c0c0c0c0c";
+    LOG_PRINT_YELLOW("Job assignment ok", LOG_LEVEL_0);
+    return 1;
+  }
+
+	int demo_levin_server::handle_Result(int command, COMMAND_WITH_Result::request& arg, COMMAND_WITH_Result::response& rsp, const net_utils::connection_context_base& context)
+  {
+	LOG_PRINT_RED("Result coming from the worker " << arg.ID_data <<  " , password: " << arg.passwd << " .", LOG_LEVEL_0);
+    rsp.R_success = true;
+    LOG_PRINT_YELLOW("Task " << arg.ID_task << " is ok", LOG_LEVEL_0);
     return 1;
   }
 }

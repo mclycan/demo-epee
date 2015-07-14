@@ -31,10 +31,12 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 
 
 #define BOOST_FILESYSTEM_VERSION 3
 #define ENABLE_RELEASE_LOGGING
+#define random(x) (rand()%x)
 #include "misc_log_ex.h"
 
 

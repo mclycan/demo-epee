@@ -3,6 +3,7 @@
 #include "serialization/keyvalue_serialization.h"
 #include "storages/portable_storage_base.h"
 
+
 namespace demo
 {
 
@@ -83,6 +84,193 @@ namespace demo
       KV_SERIALIZE(mc_str)
     END_KV_SERIALIZE_MAP()
   };
+
+  /*struct SendID
+  {      
+    std::string ID_data;
+    uint16_t ID_num;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct Return_SendID
+  {      
+    bool ID_success;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_success)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct SendRequest
+  {      
+    std::string ID_data;
+    uint16_t ID_num;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct Return_SendRequest
+  {      
+    std::string ID_data;
+    uint16_t ID_num;
+    std::string charset;
+    std::string prefix;
+    std::string suffix;
+    uint8_t length;
+    std::string pubkey;
+    std::string enc_master;
+    std::string enc_secret;
+    std::string salt;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+      KV_SERIALIZE(charset)
+      KV_SERIALIZE(prefix)
+      KV_SERIALIZE(suffix)
+      KV_SERIALIZE(length)
+      KV_SERIALIZE(pubkey)
+      KV_SERIALIZE(enc_master)
+      KV_SERIALIZE(enc_secret)
+      KV_SERIALIZE(salt)
+    END_KV_SERIALIZE_MAP()
+  };
+
+
+  struct SendResult
+  {      
+    std::string ID_data;
+    std::string passwd;
+    uint16_t ID_num;
+    uint16_t ID_task;
+    bool result;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+      KV_SERIALIZE(passwd)
+      KV_SERIALIZE(ID_task)
+      KV_SERIALIZE(result)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct Return_SendResult
+  {      
+    bool R_success;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(R_success)
+    END_KV_SERIALIZE_MAP()
+  };*/
+
+struct COMMAND_WITH_ID
+{
+    const static int ID = 1520;
+
+    struct request
+  {      
+    std::string ID_data;
+    uint16_t ID_num;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct response
+  {      
+    bool ID_success;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_success)
+    END_KV_SERIALIZE_MAP()
+  };
+
+};
+
+struct COMMAND_WITH_Request
+{
+    const static int ID = 1521;
+
+  struct request
+  {      
+    std::string ID_data;
+    uint16_t ID_num;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct response
+  {      
+    std::string ID_data;
+    uint16_t ID_num;
+    std::string charset;
+    std::string prefix;
+    std::string suffix;
+    uint8_t length;
+    std::string pubkey;
+    std::string enc_master;
+    std::string enc_secret;
+    std::string salt;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+      KV_SERIALIZE(charset)
+      KV_SERIALIZE(prefix)
+      KV_SERIALIZE(suffix)
+      KV_SERIALIZE(length)
+      KV_SERIALIZE(pubkey)
+      KV_SERIALIZE(enc_master)
+      KV_SERIALIZE(enc_secret)
+      KV_SERIALIZE(salt)
+    END_KV_SERIALIZE_MAP()
+  };
+
+};
+
+struct COMMAND_WITH_Result
+{
+    const static int ID = 1522;
+
+  struct request
+  {      
+    std::string ID_data;
+    std::string passwd;
+    uint16_t ID_num;
+    uint16_t ID_task;
+    bool result;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(ID_data)
+      KV_SERIALIZE(ID_num)
+      KV_SERIALIZE(passwd)
+      KV_SERIALIZE(ID_task)
+      KV_SERIALIZE(result)
+    END_KV_SERIALIZE_MAP()
+  };
+
+  struct response
+  {      
+    bool R_success;
+
+    BEGIN_KV_SERIALIZE_MAP()
+      KV_SERIALIZE(R_success)
+    END_KV_SERIALIZE_MAP()
+  };
+
+};
 
   /************************************************************************/
   /*                                                                      */
