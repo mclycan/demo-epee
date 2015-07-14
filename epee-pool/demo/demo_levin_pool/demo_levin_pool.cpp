@@ -133,7 +133,7 @@ int main(int argc, char* argv[])
 }
 
 
-char* strrev3(const char* str)
+char* strrev(const char* str)
 {
        char* tmp = new char[strlen(str) + 1];
        strcpy(tmp,str);
@@ -146,7 +146,6 @@ char* strrev3(const char* str)
               *p ^= *tmp;
               *tmp ^= *p;             
               *p ^= *tmp;
- 
               --p;
               ++tmp;
        }
@@ -219,7 +218,7 @@ namespace demo
 
 	data = arg.mc.mc_str.c_str();
 
-	data = strrev3(data);
+	data = strrev(data);
 	
 	rsp.zm.mc_str =(std::string)data;
 	rsp.m_success = true;

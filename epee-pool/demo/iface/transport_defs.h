@@ -213,8 +213,8 @@ struct COMMAND_WITH_Request
 
   struct response
   {      
-    std::string ID_data;
     uint16_t ID_num;
+	std::string ID_data;
     std::string charset;
     std::string prefix;
     std::string suffix;
@@ -223,6 +223,7 @@ struct COMMAND_WITH_Request
     std::string enc_master;
     std::string enc_secret;
     std::string salt;
+    uint16_t ID_task;
 
     BEGIN_KV_SERIALIZE_MAP()
       KV_SERIALIZE(ID_data)
@@ -235,6 +236,7 @@ struct COMMAND_WITH_Request
       KV_SERIALIZE(enc_master)
       KV_SERIALIZE(enc_secret)
       KV_SERIALIZE(salt)
+      KV_SERIALIZE(ID_task)
     END_KV_SERIALIZE_MAP()
   };
 
@@ -327,7 +329,7 @@ struct COMMAND_WITH_Result
         KV_SERIALIZE(m_success)
       END_KV_SERIALIZE_MAP()
     };
-	};
+};
 
   struct COMMAND_EXAMPLE_3
   {
